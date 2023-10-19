@@ -1,10 +1,9 @@
 const { Pool } = require('pg');
 const express = require('express');
-const app = express();
 const cors = require('cors');
-
+const app = express();
 app.use(express.json());
-require('dotenv').config();
+
 
 // Use CORS middleware before your routes
 app.use(cors());
@@ -22,7 +21,7 @@ const pool = new Pool({
 });
 
 // READ or GET AGENTS FROM THE DB
-app.get('/agents', async (req, res) => {
+app.get('/api/agents', async (req, res) => {
     try {
         const client = await pool.connect();
         const result = await client.query('SELECT * FROM agent_table');  // Assuming the table name is 'agents'
@@ -36,7 +35,7 @@ app.get('/agents', async (req, res) => {
 });
 
 // CREATE A NEW AGENT INTO THE DB
-app.post('/agents', async (req, res) => {
+app.post('/api/agents', async (req, res) => {
     try {
         const { agent_name, contract_level, upline } = req.body;
         const result = await pool.query('INSERT INTO agent_table (agent_name, contract_level, upline) VALUES ($1, $2, $3) RETURNING *', [agent_name, contract_level, upline]);
@@ -48,7 +47,7 @@ app.post('/agents', async (req, res) => {
 });
 
 // UPDATE AN EXISTING AGENT IN THE DB
-app.put('/agents/:agent_code', async (req, res) => {
+app.put('/api/agents/:agent_code', async (req, res) => {
     try {
         const { agent_name, contract_level, upline } = req.body;
         const { agent_code } = req.params;
@@ -61,7 +60,7 @@ app.put('/agents/:agent_code', async (req, res) => {
 });
 
 // DELETE AN AGENT FROM THE DB
-app.delete('/agents/:agent_code', async (req, res) => {
+app.delete('/api/agents/:agent_code', async (req, res) => {
     try {
         const { agent_code } = req.params;
         await pool.query('DELETE FROM agent_table WHERE agent_code=$1', [agent_code]);
@@ -73,7 +72,7 @@ app.delete('/agents/:agent_code', async (req, res) => {
 });
 
 // GET A SINGLE AGENT
-app.get('/agents/:agent_code', async (req, res) => {
+app.get('/api/agents/:agent_code', async (req, res) => {
     try {
         const { agent_code } = req.params;
         const result = await pool.query('SELECT * FROM agent_table WHERE agent_code=$1', [agent_code]);
