@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { addAgent, updateAgent } from '../api/agentsAPI';
 import { isUplineValid } from '../utils/validation';
 
@@ -6,41 +6,52 @@ const AgentForm = ({ agents, formData, setFormData, isEditMode, editAgent, setIs
   const { agentName, contractLevel, upline } = formData;
   const [possibleUplines, setPossibleUplines] = useState([]);
 
+  // Define a function to update the possible uplines based on the selected contract level
+  const updatePossibleUplines = useCallback((selectedContractLevel) => {
+    const updatedUplines = agents.filter(agent => isUplineValid(agent.agent_code, selectedContractLevel, agents));
+    
+    if (['AGT', 'SA', 'GA'].includes(selectedContractLevel)) {
+      // Exclude RGA agents as uplines for AGT, SA, and GA
+      setPossibleUplines(updatedUplines.filter(agent => agent.contract_level !== 'RGA'));
+    } else {
+      setPossibleUplines(updatedUplines);
+    }
+  }, [agents]);
+
   useEffect(() => {
-    // This updates the possible uplines based on the selected contract level
-    const updatedUplines = agents.filter(agent => isUplineValid(agent.contractLevel, contractLevel));
-    setPossibleUplines(updatedUplines);
-  }, [contractLevel, agents]);
+    // Initialize possible uplines based on the default contract level
+    updatePossibleUplines(contractLevel);
+  }, [contractLevel, agents, updatePossibleUplines]);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (isUplineValid(upline, contractLevel)) {
+  
+    if (isUplineValid(upline, contractLevel, agents)) {
       const newAgent = {
         agent_name: agentName,
         contract_level: contractLevel,
         upline: upline
       };
-
-      if (isEditMode) {
-        updateAgent(editAgent.agent_code, newAgent).then(() => {
+  
+      try {
+        if (isEditMode) {
+          // If it's an edit, call the updateAgent function
+          await updateAgent(editAgent.agent_code, newAgent);
           setIsEditMode(false);
-          setFormData({
-            agentName: '',
-            contractLevel: 'AGT',
-            upline: ''
-          });
+        } else {
+          // If it's a new agent, call the addAgent function
+          const addedAgent = await addAgent(newAgent);
+          addNewAgentToLocalState(addedAgent);
+        }
+  
+        // Reset the form data
+        setFormData({
+          agentName: '',
+          contractLevel: 'AGT',
+          upline: ''
         });
-      } else {
-        addAgent(newAgent).then((addedAgent) => {
-          // Assuming the API returns the added agent with its unique agent_code
-          addNewAgentToLocalState(addedAgent); 
-          setFormData({
-            agentName: '',
-            contractLevel: 'AGT',
-            upline: ''
-          });
-        });
+      } catch (error) {
+        console.error("Error adding/updating agent:", error);
       }
     } else {
       alert('Invalid upline. Please select a valid upline.');
@@ -65,10 +76,15 @@ const AgentForm = ({ agents, formData, setFormData, isEditMode, editAgent, setIs
         Contract Level:
         <select 
           value={contractLevel} 
-          onChange={(e) => setFormData(prevState => ({
-            ...prevState,
-            contractLevel: e.target.value
-          }))}>
+          onChange={(e) => {
+            const selectedContractLevel = e.target.value;
+            setFormData(prevState => ({
+              ...prevState,
+              contractLevel: selectedContractLevel
+            }));
+            // Update possible uplines when contract level changes
+            updatePossibleUplines(selectedContractLevel);
+          }}>
           <option value="AGT">AGT</option>
           <option value="SA">SA</option>
           <option value="GA">GA</option>
@@ -79,21 +95,22 @@ const AgentForm = ({ agents, formData, setFormData, isEditMode, editAgent, setIs
       </label>
 
       <label>
-        Upline:
-        <select 
-          value={upline} 
-          onChange={(e) => setFormData(prevState => ({
-            ...prevState,
-            upline: e.target.value
-          }))}>
-          <option value="">Select Upline</option>
-          {possibleUplines.map(agent => (
-            <option key={agent.agent_code} value={agent.agent_code}>
-              {agent.agent_name} ({agent.agent_code})
-            </option>
-          ))}
-        </select>
-      </label>
+  Upline:
+  <select 
+    value={upline} 
+    onChange={(e) => setFormData(prevState => ({
+      ...prevState,
+      upline: e.target.value
+    }))}>
+    <option value="">Select Upline</option>
+    {possibleUplines.map(agent => (
+      <option key={agent.agent_code} value={agent.agent_code}>
+        {agent.agent_name} ({agent.contract_level})
+      </option>
+    ))}
+  </select>
+</label>
+
       
       <button type="submit">
         {isEditMode ? 'Update Agent' : 'Add Agent'}

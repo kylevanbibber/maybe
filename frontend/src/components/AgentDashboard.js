@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AgentTable from './AgentTable';
 import { fetchAndDisplayAgents } from '../api/agentsAPI';
 import AgentForm from './AgentForm';
@@ -6,15 +6,16 @@ import AgentForm from './AgentForm';
 function AgentDashboard() {
   const [agents, setAgents] = useState([]);
   const [triggerSort, setTriggerSort] = useState(false);
-  const contractLevels = ["SGA", "RGA", "MGA", "GA", "SA", "AGT"];
+  const contractLevels = useMemo(() => ["SGA", "RGA", "MGA", "GA", "SA", "AGT"], []);
   const [formData, setFormData] = useState({
     agentName: '',
     contractLevel: 'AGT',
     upline: ''
   });
+
   
 
-  const sortAgents = (agentsArray) => {
+  const sortAgents = useCallback((agentsArray) => {
     return agentsArray.sort((a, b) => {
       const levelDiff = contractLevels.indexOf(b.contract_level) - contractLevels.indexOf(a.contract_level);
       if (levelDiff !== 0) return levelDiff;
@@ -23,13 +24,13 @@ function AgentDashboard() {
       if (a.upline > b.upline) return 1;
       return 0;
     });
-  };
+  }, [contractLevels]);
 
   const addNewAgentToLocalState = (newAgent) => {
     setAgents(prevAgents => sortAgents([...prevAgents, newAgent]));
   };
   
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const data = await fetchAndDisplayAgents();
       if (data && data.results) {
@@ -39,11 +40,12 @@ function AgentDashboard() {
     } catch (error) {
       console.error("Error fetching agents:", error);
     }
-  };
+  }, [sortAgents]);
 
   useEffect(() => {
     fetchData();
-  }, [triggerSort]);
+  }, [triggerSort, fetchData]);
+  
 
   return (
     <div>
