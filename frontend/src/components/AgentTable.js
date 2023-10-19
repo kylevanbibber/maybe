@@ -8,7 +8,7 @@ function AgentTable({ agents, isEditMode, editAgent, setFormData, setIsEditMode,
         <tr>
           <th>Agent Code</th>
           <th>Agent Name</th>
-          <th>Contract Level</th>
+          <th>Contract</th>
           <th>Upline</th>
           <th>Actions</th>
         </tr>
@@ -23,6 +23,7 @@ function AgentTable({ agents, isEditMode, editAgent, setFormData, setIsEditMode,
             setFormData={setFormData}
             setIsEditMode={setIsEditMode}
             fetchAndDisplayAgents={fetchAndDisplayAgents}
+            agents={agents}
           />
         ))}
       </tbody>
