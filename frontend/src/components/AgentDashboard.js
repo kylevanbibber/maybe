@@ -1,27 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import AgentTable from './AgentTable';
-import AddAgent from './AddAgent';
 import { fetchAndDisplayAgents } from '../api/agentsAPI';
+import AgentForm from './AgentForm';
 
 function AgentDashboard() {
   const [agents, setAgents] = useState([]);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [triggerSort, setTriggerSort] = useState(false);
+  const contractLevels = ["SGA", "RGA", "MGA", "GA", "SA", "AGT"];
+  const [formData, setFormData] = useState({
+    agentName: '',
+    contractLevel: 'AGT',
+    upline: ''
+  });
+  
 
+  const sortAgents = (agentsArray) => {
+    return agentsArray.sort((a, b) => {
+      const levelDiff = contractLevels.indexOf(b.contract_level) - contractLevels.indexOf(a.contract_level);
+      if (levelDiff !== 0) return levelDiff;
+
+      if (a.upline < b.upline) return -1;
+      if (a.upline > b.upline) return 1;
+      return 0;
+    });
+  };
+
+  const addNewAgentToLocalState = (newAgent) => {
+    setAgents(prevAgents => sortAgents([...prevAgents, newAgent]));
+  };
+  
   const fetchData = async () => {
     try {
       const data = await fetchAndDisplayAgents();
       if (data && data.results) {
-        const sortedAgents = data.results.sort((a, b) => {
-          if (typeof a.upline === "string" && typeof b.upline === "string") {
-            return a.upline.localeCompare(b.upline);
-          } else if (typeof a.upline === "number" && typeof b.upline === "number") {
-            return a.upline - b.upline;
-          } else {
-            return 0;  // default case if upline is of some other type or if inconsistent
-          }
-        });
-
+        const sortedAgents = sortAgents(data.results);
         setAgents(sortedAgents);
       }
     } catch (error) {
@@ -31,29 +43,24 @@ function AgentDashboard() {
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  const handleEdit = (agent) => {
-    setIsEditMode(true);
-    setFormData(agent);
-  };
+  }, [triggerSort]);
 
   return (
     <div>
-      <AddAgent 
-        formData={formData} 
-        setFormData={setFormData} 
-        isEditMode={isEditMode} 
-        setIsEditMode={setIsEditMode} 
-        setAgents={setAgents} 
-      />
+      <AgentForm 
+  setAgents={setAgents} 
+  agents={agents}
+  formData={formData}
+  addNewAgentToLocalState={addNewAgentToLocalState}
+  fetchAndDisplayAgents={fetchAndDisplayAgents} 
+  setFormData={setFormData}
+  setTriggerSort={setTriggerSort}
+  contractLevels={contractLevels} // Pass contract levels
+/>
+
       <AgentTable 
         agents={agents} 
-        isEditMode={isEditMode} 
-        editAgent={handleEdit} 
-        setFormData={setFormData} 
-        setIsEditMode={setIsEditMode}
-        fetchAndDisplayAgents={fetchData} // passing fetchData instead, so it sorts after each fetch
+        fetchAndDisplayAgents={fetchAndDisplayAgents} 
       />
     </div>
   );
