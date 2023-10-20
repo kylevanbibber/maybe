@@ -29,8 +29,34 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
     }
   };
 
-  // Filter agents based on contract level
-  const validUplines = agents.filter(a => contractLevels.indexOf(a.contract_level) > contractLevels.indexOf(editedAgent.contract_level));
+  const getValidUplines = () => {
+    const currentContractLevel = editedAgent.contract_level;
+    const validUplines = agents.filter(a => {
+      const uplineContractLevel = a.contract_level;
+
+      if (currentContractLevel === "AGT") {
+        return ["SA", "GA", "MGA", "SGA"].includes(uplineContractLevel);
+      } else if (currentContractLevel === "SA") {
+        return ["GA", "MGA", "SGA"].includes(uplineContractLevel);
+      } else if (currentContractLevel === "GA") {
+        return ["MGA", "SGA"].includes(uplineContractLevel);
+      } else if (currentContractLevel === "MGA") {
+        return ["RGA", "SGA"].includes(uplineContractLevel);
+      } else if (currentContractLevel === "RGA") {
+        return uplineContractLevel === "SGA";
+      } else if (currentContractLevel === "SGA") {
+        return false; // SGA has no upline
+      }
+
+      return false; // Default case, should not happen
+    });
+
+    return validUplines;
+};
+
+
+
+  const validUplines = getValidUplines();
 
   return (
     <tr>
@@ -41,7 +67,7 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
           <td>
             <select value={editedAgent.contract_level} onChange={e => setEditedAgent({...editedAgent, contract_level: e.target.value})}>
               {contractLevels.map(level => (
-                <option key={level} value={level} selected={level === editedAgent.contract_level}>
+                <option key={level} value={level}>
                   {level}
                 </option>
               ))}
@@ -49,9 +75,10 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
           </td>
           <td>
             <select value={editedAgent.upline} onChange={e => setEditedAgent({...editedAgent, upline: e.target.value})}>
+              <option value="">Select Upline</option>
               {validUplines.map(a => (
                 <option key={a.agent_code} value={a.agent_code}>
-                  {a.agent_code}
+                  {a.agent_name} ({a.contract_level})
                 </option>
               ))}
             </select>

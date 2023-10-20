@@ -13,7 +13,7 @@ function AgentDashboard() {
     upline: ''
   });
 
-  
+
 
   const sortAgents = useCallback((agentsArray) => {
     return agentsArray.sort((a, b) => {
@@ -29,7 +29,7 @@ function AgentDashboard() {
   const addNewAgentToLocalState = (newAgent) => {
     setAgents(prevAgents => sortAgents([...prevAgents, newAgent]));
   };
-  
+
   const fetchData = useCallback(async () => {
     try {
       const data = await fetchAndDisplayAgents();
@@ -45,7 +45,7 @@ function AgentDashboard() {
   useEffect(() => {
     fetchData();
   }, [triggerSort, fetchData]);
-  
+
 
   return (
     <div>

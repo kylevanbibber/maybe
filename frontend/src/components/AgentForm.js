@@ -25,7 +25,12 @@ const AgentForm = ({ agents, formData, setFormData, isEditMode, editAgent, setIs
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+    
+    console.log('Upline:', upline);
+    console.log('Contract Level:', contractLevel);
+    console.log('All Agents:', agents);
+    
+
     if (isUplineValid(upline, contractLevel, agents)) {
       const newAgent = {
         agent_name: agentName,
