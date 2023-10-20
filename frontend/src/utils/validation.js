@@ -1,5 +1,6 @@
 export const isUplineValid = (uplineAgentCode, agentContractLevel, agents) => {
-  const uplineAgent = agents.find(agent => agent.agent_code === uplineAgentCode);
+  const uplineAgent = agents.find(agent => agent.agent_code === Number(uplineAgentCode));
+
 
   if (!uplineAgent) {
     // Handle the case where the upline agent doesn't exist.
