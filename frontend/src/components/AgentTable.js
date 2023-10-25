@@ -1,16 +1,17 @@
 import React from 'react';
 import AgentRow from './AgentRow';
+import styles from './AgentTable.module.css';
 
 function AgentTable({ agents, isEditMode, editAgent, setFormData, setIsEditMode, fetchAndDisplayAgents }) {
   return (
-    <table>
+    <table className={styles.table}>
       <thead>
         <tr>
           <th>Agent Code</th>
           <th>Agent Name</th>
           <th>Contract</th>
           <th>Upline</th>
-          <th>Actions</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -29,6 +30,7 @@ function AgentTable({ agents, isEditMode, editAgent, setFormData, setIsEditMode,
       </tbody>
     </table>
   );
+  
 }
 
 export default AgentTable;
