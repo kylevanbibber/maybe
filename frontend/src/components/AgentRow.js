@@ -5,11 +5,30 @@ import styles from './AgentRow.module.css';
 function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedAgent, setEditedAgent] = useState(agent);
+  const [validUplines, setValidUplines] = useState([]);
 
   const contractLevels = ["AGT", "SA", "GA", "MGA", "RGA", "SGA"];
 
   const handleEditAgent = () => {
     setIsEditing(true);
+  
+    const newValidUplines = agents.filter(a => {
+      const uplineContractLevel = a.contract_level;
+      const currentContractLevel = editedAgent.contract_level;
+  
+      const validUplineContractLevels = {
+        "AGT": ["SA", "GA", "MGA", "RGA", "SGA"],
+        "SA": ["GA", "MGA", "RGA", "SGA"],
+        "GA": ["MGA", "RGA", "SGA"],
+        "MGA": ["RGA", "SGA"],
+        "RGA": ["RGA", "SGA"],
+        "SGA": ["Home Office"],
+      };
+  
+      return validUplineContractLevels[currentContractLevel]?.includes(uplineContractLevel);
+    });
+  
+    setValidUplines(newValidUplines);
   };
 
   const handleDeleteAgent = async (agentCode) => {
@@ -17,50 +36,72 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
     if (isConfirmed) {
       await deleteAgent(agentCode);
       fetchAndDisplayAgents();
+      window.location.reload(); // Refresh the page
     }
   };
 
   const isValidUpline = (editedAgent, agents) => {
     const uplineAgent = agents.find(agent => agent.agent_code === Number(editedAgent.upline));
     const currentContractLevel = editedAgent.contract_level;
-  
+
     if (!uplineAgent) {
       return false;
     }
-  
-    // Define the valid upline contract levels based on the current contract level
+
     const validUplineContractLevels = {
       "AGT": ["SA", "GA", "MGA", "RGA", "SGA"],
       "SA": ["GA", "MGA", "RGA", "SGA"],
       "GA": ["MGA", "RGA", "SGA"],
       "MGA": ["RGA", "SGA"],
-      "RGA": ["RGA", "SGA"], // Allow "SGA" and "MGA" as uplines for "RGA"
-      "SGA": ["Home Office"], // SGAs can have "Home Office" as an upline
+      "RGA": ["RGA", "SGA"],
+      "SGA": ["Home Office"],
     };
-  
-    // Special case for SGAs with "Home Office" upline
+
     if (currentContractLevel === "SGA" && editedAgent.upline === "0") {
       return true;
     }
-  
+
     const validUplines = agents.filter(a => {
       const uplineContractLevel = a.contract_level;
       return validUplineContractLevels[currentContractLevel]?.includes(uplineContractLevel);
     });
-  
+
     return validUplines.some(a => a.agent_code === Number(editedAgent.upline));
   };
-  
 
-  const validUplines = isValidUpline(editedAgent, agents) ? agents.filter(a => a.agent_code !== editedAgent.agent_code) : [];
+  const handleContractLevelChange = (newLevel) => {
+    setEditedAgent({
+      ...editedAgent,
+      contract_level: newLevel,
+      upline: '',
+    });
+
+    const newValidUplines = agents.filter(a => {
+      const uplineContractLevel = a.contract_level;
+      const currentContractLevel = newLevel;
+
+      const validUplineContractLevels = {
+        "AGT": ["SA", "GA", "MGA", "RGA", "SGA"],
+        "SA": ["GA", "MGA", "RGA", "SGA"],
+        "GA": ["MGA", "RGA", "SGA"],
+        "MGA": ["RGA", "SGA"],
+        "RGA": ["RGA", "SGA"],
+        "SGA": ["Home Office"],
+      };
+
+      return validUplineContractLevels[currentContractLevel]?.includes(uplineContractLevel);
+    });
+
+    setValidUplines(newValidUplines);
+  };
 
   const handleSave = async () => {
     try {
-      // Add upline validation here
       if (isValidUpline(editedAgent, agents)) {
         await updateAgent(editedAgent.agent_code, editedAgent);
         setIsEditing(false);
         fetchAndDisplayAgents();
+        window.location.reload(); // Refresh the page
       } else {
         alert('Invalid upline. Please select a valid upline.');
       }
@@ -69,21 +110,26 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
     }
   };
 
+  const handleCancel = () => {
+    setIsEditing(false);
+    window.location.reload(); // Refresh the page
+  };
+
   return (
     <tr className={styles.tr}>
       <td className={styles.td}>{editedAgent.agent_code}</td>
       {isEditing ? (
         <>
           <td className={styles.td}>
-            <input 
-              value={editedAgent.agent_name} 
-              onChange={e => setEditedAgent({...editedAgent, agent_name: e.target.value})} 
+            <input
+              value={editedAgent.agent_name}
+              onChange={e => setEditedAgent({ ...editedAgent, agent_name: e.target.value })}
             />
           </td>
           <td className={styles.td}>
-            <select 
-              value={editedAgent.contract_level} 
-              onChange={e => setEditedAgent({...editedAgent, contract_level: e.target.value})}
+            <select
+              value={editedAgent.contract_level}
+              onChange={e => handleContractLevelChange(e.target.value)}
             >
               {contractLevels.map(level => (
                 <option key={level} value={level}>
@@ -93,9 +139,9 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
             </select>
           </td>
           <td className={styles.td}>
-            <select 
-              value={editedAgent.upline} 
-              onChange={e => setEditedAgent({...editedAgent, upline: e.target.value})}
+            <select
+              value={editedAgent.upline}
+              onChange={e => setEditedAgent({ ...editedAgent, upline: e.target.value })}
             >
               <option value="">Select Upline</option>
               {validUplines.map(a => (
@@ -107,7 +153,7 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
           </td>
           <td className={styles.td}>
             <button className={styles.button} onClick={handleSave}>Save</button>
-            <button className={styles.button} onClick={() => setIsEditing(false)}>Cancel</button>
+            <button className={styles.button} onClick={handleCancel}>Cancel</button>
           </td>
         </>
       ) : (
