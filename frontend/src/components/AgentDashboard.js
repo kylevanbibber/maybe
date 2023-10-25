@@ -1,4 +1,3 @@
-// AgentDashboard.js
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AgentTable from './AgentTable';
 import { fetchAndDisplayAgents } from '../api/agentsAPI';
