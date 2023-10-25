@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AgentTable from './AgentTable';
 import { fetchAndDisplayAgents } from '../api/agentsAPI';
 import AgentForm from './AgentForm';
+import AgentTree from './AgentTree';
 
 function AgentDashboard() {
   const [agents, setAgents] = useState([]);
@@ -44,6 +45,8 @@ function AgentDashboard() {
     fetchData();
   }, [triggerSort, fetchData]);
 
+  // Define view mode states
+  const [viewMode, setViewMode] = useState('table'); // Default to table view
 
   return (
     <div>
@@ -58,10 +61,23 @@ function AgentDashboard() {
         contractLevels={contractLevels} // Pass contract levels
       />
 
-      <AgentTable 
-        agents={agents} 
-        fetchAndDisplayAgents={fetchAndDisplayAgents} 
-      />
+      {/* Add a button to toggle between table and tree view */}
+      <div>
+        <button onClick={() => setViewMode('table')}>Table View</button>
+        <button onClick={() => setViewMode('tree')}>Tree View</button>
+      </div>
+      
+      {/* Render the AgentTable or AgentTree based on the selected view mode */}
+      {viewMode === 'table' ? (
+        <AgentTable 
+          agents={agents} 
+          fetchAndDisplayAgents={fetchAndDisplayAgents} 
+        />
+      ) : (
+        <div>
+          <AgentTree agents={agents} managerCode="0" />
+        </div>
+      )}
     </div>
   );
 }

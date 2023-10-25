@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { updateAgent, deleteAgent } from '../api/agentsAPI';
+import { Edit, Trash, Save, X } from 'react-feather'; // Import Feather Icons
 import styles from './AgentRow.module.css';
 
 function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
@@ -106,8 +107,12 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
             </select>
           </td>
           <td className={styles.td}>
-            <button className={styles.button} onClick={handleSave}>Save</button>
-            <button className={styles.button} onClick={() => setIsEditing(false)}>Cancel</button>
+            <button className={styles.button} onClick={handleSave}>
+              <Save size={18} />
+            </button>
+            <button className={styles.button} onClick={() => setIsEditing(false)}>
+              <X size={18} />
+            </button>
           </td>
         </>
       ) : (
@@ -116,8 +121,12 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
           <td className={styles.td}>{editedAgent.contract_level}</td>
           <td className={styles.td}>{editedAgent.upline}</td>
           <td className={styles.td}>
-            <button className={styles.button} onClick={handleEditAgent}>Edit</button>
-            <button className={styles.button} onClick={() => handleDeleteAgent(editedAgent.agent_code)}>Delete</button>
+            <button className={styles.button} onClick={handleEditAgent}>
+              <Edit size={18} />
+            </button>
+            <button className={styles.button} onClick={() => handleDeleteAgent(editedAgent.agent_code)}>
+              <Trash size={18} />
+            </button>
           </td>
         </>
       )}

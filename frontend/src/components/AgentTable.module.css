@@ -21,6 +21,8 @@
     font-weight: bold;
   }
   
+
+  
   .table tbody tr:hover {
     background-color: #f6f8fa;
   }
@@ -32,6 +34,19 @@
   
   tr:hover {
     transform: scale(1.02); /* slightly scale up */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* shadow effect */
+    box-shadow: 0 4px 12px rgba(0, 91, 151, 0.15); /* shadow effect */
   }
   
+/* Add these styles to your CSS file */
+
+/* Arrow for ascending sort */
+.arrowUp::after {
+  content: " ▲"; /* Unicode upward arrow character */
+}
+
+/* Arrow for descending sort */
+.arrowDown::after {
+  content: " ▼"; /* Unicode downward arrow character */
+}
+
+
