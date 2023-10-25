@@ -30,9 +30,9 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
   
     // Define the valid upline contract levels based on the current contract level
     const validUplineContractLevels = {
-      "AGT": ["SA", "GA", "MGA", "SGA"],
-      "SA": ["GA", "MGA", "SGA"],
-      "GA": ["MGA", "SGA"],
+      "AGT": ["SA", "GA", "MGA", "RGA", "SGA"],
+      "SA": ["GA", "MGA", "RGA", "SGA"],
+      "GA": ["MGA", "RGA", "SGA"],
       "MGA": ["RGA", "SGA"],
       "RGA": ["RGA", "SGA"], // Allow "SGA" and "MGA" as uplines for "RGA"
       "SGA": ["Home Office"], // SGAs can have "Home Office" as an upline

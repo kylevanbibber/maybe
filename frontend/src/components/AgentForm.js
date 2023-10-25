@@ -18,12 +18,12 @@ const AgentForm = ({
     let updatedUplines = [];
   
     if (selectedContractLevel === 'AGT') {
-      updatedUplines = agents.filter((agent) => ['SA', 'GA', 'MGA', 'SGA'].includes(agent.contract_level));
+      updatedUplines = agents.filter((agent) => ['SA', 'GA', 'MGA', 'RGA', 'SGA'].includes(agent.contract_level));
       updatedUplines.push({ agent_code: '0', agent_name: 'Home Office', contract_level: 'SGA' });
     } else if (selectedContractLevel === 'SA') {
-      updatedUplines = agents.filter((agent) => ['GA', 'MGA', 'SGA'].includes(agent.contract_level));
+      updatedUplines = agents.filter((agent) => ['GA', 'MGA', 'RGA', 'SGA'].includes(agent.contract_level));
     } else if (selectedContractLevel === 'GA') {
-      updatedUplines = agents.filter((agent) => ['MGA', 'SGA'].includes(agent.contract_level));
+      updatedUplines = agents.filter((agent) => ['MGA', 'RGA', 'SGA'].includes(agent.contract_level));
     } else if (selectedContractLevel === 'MGA') {
       updatedUplines = agents.filter((agent) => ['RGA', 'SGA'].includes(agent.contract_level));
     } else if (selectedContractLevel === 'RGA') {
