@@ -45,16 +45,14 @@ function AgentRow({ agent, fetchAndDisplayAgents, agents }) {
       } else if (currentContractLevel === "RGA") {
         return uplineContractLevel === "SGA";
       } else if (currentContractLevel === "SGA") {
-        return false; // SGA has no upline
+        return false;
       }
 
-      return false; // Default case, should not happen
+      return false;
     });
 
     return validUplines;
-};
-
-
+  };
 
   const validUplines = getValidUplines();
 

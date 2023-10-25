@@ -1,3 +1,4 @@
+// AgentDashboard.js
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import AgentTable from './AgentTable';
 import { fetchAndDisplayAgents } from '../api/agentsAPI';
@@ -12,8 +13,6 @@ function AgentDashboard() {
     contractLevel: 'AGT',
     upline: ''
   });
-
-
 
   const sortAgents = useCallback((agentsArray) => {
     return agentsArray.sort((a, b) => {
@@ -50,15 +49,15 @@ function AgentDashboard() {
   return (
     <div>
       <AgentForm 
-  setAgents={setAgents} 
-  agents={agents}
-  formData={formData}
-  addNewAgentToLocalState={addNewAgentToLocalState}
-  fetchAndDisplayAgents={fetchAndDisplayAgents} 
-  setFormData={setFormData}
-  setTriggerSort={setTriggerSort}
-  contractLevels={contractLevels} // Pass contract levels
-/>
+        setAgents={setAgents} 
+        agents={agents}
+        formData={formData}
+        addNewAgentToLocalState={addNewAgentToLocalState}
+        fetchAndDisplayAgents={fetchAndDisplayAgents} 
+        setFormData={setFormData}
+        setTriggerSort={setTriggerSort}
+        contractLevels={contractLevels} // Pass contract levels
+      />
 
       <AgentTable 
         agents={agents} 
